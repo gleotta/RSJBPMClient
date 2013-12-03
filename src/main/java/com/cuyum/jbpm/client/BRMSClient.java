@@ -195,7 +195,12 @@ public interface BRMSClient {
 	 */
 	POSTSignalTokenResponse signalToken(String tokenId, String signalRef, String value);
 
-	
+	/**
+	 * Crea una unica instancia sin inicializar variables de proceso
+	 * 
+	 * @param processId
+	 * @return
+	 */
 	POSTNewInstanceResponse newInstance(String processId);
 	
 
