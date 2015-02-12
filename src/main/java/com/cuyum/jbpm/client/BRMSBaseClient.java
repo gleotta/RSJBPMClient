@@ -74,11 +74,11 @@ public abstract class BRMSBaseClient {
 		}
 		System.out.println("URL: "+url);
 		HttpRequestBase theMethod = null;
-
+		
 		try {
 
 			String urlpath = buildUrl(url);
-
+			System.out.println("URLPath getMethod: "+urlpath);
 			switch (ws.getMethod()) {
 			case POST:
 				theMethod = new HttpPost(urlpath);

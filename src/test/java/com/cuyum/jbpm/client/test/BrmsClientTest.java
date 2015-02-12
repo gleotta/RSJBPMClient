@@ -40,10 +40,15 @@ import com.cuyum.jbpm.client.artifacts.responses.POSTUpdateTaskResponse;
  */
 public class BrmsClientTest {
 	
-	private static final String BRMS_ADRESS = "localhost";
+//	private static final String BRMS_ADRESS = "localhost";
+//	private static final String BRMS_PORT = "8080";
+//	private static final String USERNAME = "admin";
+//	private static final String PASSWORD = "admin";
+	
+	private static final String BRMS_ADRESS = "172.16.6.114";
 	private static final String BRMS_PORT = "8080";
-	private static final String USERNAME = "admin";
-	private static final String PASSWORD = "admin";
+	private static final String USERNAME = "iarancibias";
+	private static final String PASSWORD = "1234";
 	
 	private BRMSClient client;
 
