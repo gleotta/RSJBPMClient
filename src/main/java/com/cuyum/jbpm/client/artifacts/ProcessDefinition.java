@@ -169,34 +169,31 @@ public class ProcessDefinition {
 		this.formUrl = formUrl;
 	}
 
+	@Override
+	public String toString() {
+		return "ProcessDefinition ["
+				+ (id != null ? "id=" + id + ", " : "")
+				+ (name != null ? "name=" + name + ", " : "")
+				+ "version="
+				+ version
+				+ ", "
+				+ (packageName != null ? "packageName=" + packageName + ", "
+						: "")
+				+ (deploymentId != null ? "deploymentId=" + deploymentId + ", "
+						: "")
+				+ "suspended="
+				+ suspended
+				+ ", "
+				+ (diagramUrl != null ? "diagramUrl=" + diagramUrl + ", " : "")
+				+ (key != null ? "key=" + key + ", " : "")
+				+ (description != null ? "description=" + description + ", "
+						: "") + (formUrl != null ? "formUrl=" + formUrl : "")
+				+ "]";
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("{");
-		sb.append("id:");
-		sb.append(id);
-		sb.append(",");
-		sb.append("name:");
-		sb.append(name);
-		sb.append(",");
-		sb.append("version:");
-		sb.append(version);
-		sb.append(",");
-		sb.append("packageName:");
-		sb.append(packageName);
-		sb.append(",");
-		sb.append("deploymentId:");
-		sb.append(deploymentId);
-		sb.append(",");
-		sb.append("diagramUrl:");
-		sb.append(diagramUrl);
-		sb.append("}");
-		
-		return sb.toString();
-	}
+	
 	
 }

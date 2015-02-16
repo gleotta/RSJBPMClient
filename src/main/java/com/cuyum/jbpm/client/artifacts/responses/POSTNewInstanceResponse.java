@@ -59,6 +59,10 @@ public class POSTNewInstanceResponse extends BRMSClientWSResponse {
 	protected String endDate;
 	
 	protected String endResult;
+	
+	protected int state;
+
+	
 
 	/**
 	 * @return the id
@@ -149,14 +153,28 @@ public class POSTNewInstanceResponse extends BRMSClientWSResponse {
 		this.endResult = endResult;
 	}
 
-	@Override
-	public String toString() {
-		return "POSTNewInstanceResponse [id=" + id + ", definitionId="
-				+ definitionId + ", startDate=" + startDate + ", suspended="
-				+ suspended + ", rootToken=" + rootToken + ", key=" + key
-				+ ", endDate=" + endDate + ", endResult=" + endResult + "]";
+	public int getState() {
+		return state;
 	}
 
+	public void setState(int state) {
+		this.state = state;
+	}
+
+	@Override
+	public String toString() {
+		return "POSTNewInstanceResponse ["
+				+ (id != null ? "id=" + id + ", " : "")
+				+ (definitionId != null ? "definitionId=" + definitionId + ", "
+						: "")
+				+ (startDate != null ? "startDate=" + startDate + ", " : "")
+				+ "suspended=" + suspended + ", "
+				+ (rootToken != null ? "rootToken=" + rootToken + ", " : "")
+				+ (key != null ? "key=" + key + ", " : "")
+				+ (endDate != null ? "endDate=" + endDate + ", " : "")
+				+ (endResult != null ? "endResult=" + endResult + ", " : "")
+				+ "state=" + state + "]";
+	}
 
 
 	

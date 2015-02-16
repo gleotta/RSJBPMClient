@@ -16,6 +16,16 @@ public class ProcessInstance {
 	protected String definitionId;
 
 	protected String startDate;
+	
+	protected int status;
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
 
 	/**
 	 * @return the startDate
@@ -146,41 +156,19 @@ public class ProcessInstance {
 		this.endResult = endResult;
 	}
 
-
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("{");
-		sb.append("id:");
-		sb.append(id);
-		sb.append(",");
-		sb.append("definitionId:");
-		sb.append(definitionId);
-		sb.append(",");
-		sb.append("startDate:");
-		sb.append(startDate);
-		sb.append(",");
-		sb.append("endDate:");
-		sb.append(endDate);
-		sb.append(",");
-		sb.append("endResult:");
-		sb.append(endResult);
-		sb.append(",");
-		sb.append("isSuspended:");
-		sb.append(suspended);
-		sb.append(",");
-		sb.append("rootToken:");
-		sb.append(rootToken);
-		sb.append("}");
-
-		return sb.toString();
+		return "ProcessInstance ["
+				+ (id != null ? "id=" + id + ", " : "")
+				+ (definitionId != null ? "definitionId=" + definitionId + ", "
+						: "")
+				+ (startDate != null ? "startDate=" + startDate + ", " : "")
+				+ "status=" + status + ", suspended=" + suspended + ", "
+				+ (rootToken != null ? "rootToken=" + rootToken + ", " : "")
+				+ (key != null ? "key=" + key + ", " : "")
+				+ (endDate != null ? "endDate=" + endDate + ", " : "")
+				+ (endResult != null ? "endResult=" + endResult : "") + "]";
 	}
+
 
 }

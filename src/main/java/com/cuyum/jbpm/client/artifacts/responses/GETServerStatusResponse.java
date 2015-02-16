@@ -30,10 +30,12 @@ public class GETServerStatusResponse extends BRMSClientWSResponse {
 	}
 
 	List<ServerPlugins> plugins;
-	
+
 	@Override
-	public String toString(){
-		return plugins.toString();
+	public String toString() {
+		return "GETServerStatusResponse [status=" + status + ", message="
+				+ message + "]";
 	}
+	
 	
 }

@@ -56,6 +56,7 @@ import com.cuyum.jbpm.client.exception.WSClientException;
  * 
  */
 // @Default
+@Deprecated
 public class BRMSClientImpl extends BRMSBaseClient implements BRMSClient {
 
 	public static final Logger log = Logger.getLogger(BRMSClientImpl.class);
@@ -376,7 +377,7 @@ public class BRMSClientImpl extends BRMSBaseClient implements BRMSClient {
 	@Override
 	public POSTCreateInstanceResponse createInstance(String processId)
 			throws BRMSClientException {
-		return createInstance(processId, new HashMap<String, String>());
+		return createInstance(processId, new HashMap<String, Object>());
 	}
 
 	/*
@@ -388,13 +389,13 @@ public class BRMSClientImpl extends BRMSBaseClient implements BRMSClient {
 	 */
 	@Override
 	public POSTCreateInstanceResponse createInstance(String processId,
-			Map<String, String> params) throws BRMSClientException {
-		Set<Entry<String, String>> es = params.entrySet();
+			Map<String, Object> params) throws BRMSClientException {
+		Set<Entry<String, Object>> es = params.entrySet();
 		List<BasicNameValuePair> bnm = new ArrayList<BasicNameValuePair>(
 				es.size());
 
-		for (Entry<String, String> val : es) {
-			bnm.add(new BasicNameValuePair(val.getKey(), val.getValue()));
+		for (Entry<String, Object> val : es) {
+			bnm.add(new BasicNameValuePair(val.getKey(), val.getValue().toString()));
 		}
 
 		return this.createInstance(processId, bnm);

@@ -136,7 +136,8 @@ public interface BRMSClient {
 	 * @throws BRMSClientException
 	 */
 	POSTCreateInstanceResponse createInstance(String processId,
-			Map<String, String> params) throws BRMSClientException;
+			Map<String, Object> params) throws BRMSClientException;
+	
 	
 	/**
 	 * Update human task

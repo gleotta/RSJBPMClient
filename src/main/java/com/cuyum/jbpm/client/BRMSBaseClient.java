@@ -44,6 +44,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
  * @author Jorge Morando
  * 
  */
+@Deprecated
 public abstract class BRMSBaseClient {
 
 	public static final Logger log = Logger.getLogger(BRMSClientImpl.class);

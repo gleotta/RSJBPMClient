@@ -37,6 +37,7 @@ import com.cuyum.jbpm.client.artifacts.responses.POSTSignalTokenResponse;
  * @author Jorge Morando
  *
  */
+@Deprecated
 public enum BRMSWsConfig implements WsConfig {
 
 

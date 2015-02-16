@@ -32,7 +32,7 @@ public class PolicyQuoteTest {
 			client.login(user, pass);
 			
 			//creo una lista con los parametros de entrada al proceso
-			Map<String, String> vars = new HashMap<String, String>();
+			Map<String, Object> vars = new HashMap<String, Object>();
 			vars.put("driverName", "German");
 			vars.put("age", "22");
 			vars.put("numberOfAccidents", "1");
