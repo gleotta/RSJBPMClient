@@ -19,14 +19,18 @@ import org.jbpm.process.audit.AuditLogService;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.task.TaskService;
+import org.kie.api.task.model.Status;
+import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.deployment.DeploymentService;
 import org.kie.services.client.api.RemoteRestRuntimeEngineFactory;
 import org.kie.services.client.api.command.RemoteRuntimeEngine;
 import org.kie.services.client.serialization.jaxb.impl.deploy.JaxbDeploymentUnit;
 import org.kie.services.client.serialization.jaxb.impl.process.JaxbProcessInstanceWithVariablesResponse;
+import org.kie.services.client.serialization.jaxb.impl.task.JaxbTaskSummaryListResponse;
 import org.kie.services.client.serialization.jaxb.rest.JaxbGenericResponse;
 
 import com.cuyum.jbpm.client.BRMSClient;
+import com.cuyum.jbpm.client.artifacts.HumanTask;
 import com.cuyum.jbpm.client.artifacts.ProcessInstance;
 import com.cuyum.jbpm.client.artifacts.responses.GETAssignedTasksResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETDatasetInstanceResponse;
@@ -180,8 +184,8 @@ public class KieClient implements BRMSClient {
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("deploymentId", deploymentId);
 		try {
-			response = kieAlt.execute(Command.DEPLOYMENT_ID, parameters, false);
-			
+			response = kieAlt.execute(Command.DEPLOYMENT_ID, parameters);
+
 			JaxbDeploymentUnit resp = (JaxbDeploymentUnit) response.getEntity();
 			GETServerStatusResponse ret = new GETServerStatusResponse();
 			ret.setStatus(resp.getStatus().toString());
@@ -486,12 +490,12 @@ public class KieClient implements BRMSClient {
 			result = new JaxbGenericResponse();
 			ClientResponse<?> response;
 
-			response = kieAlt.executePost(Command.PROCESS_INSTANCE_SIGNAL, params,
-					query, null);
+			response = kieAlt.executePost(Command.PROCESS_INSTANCE_SIGNAL,
+					params, query, null);
 			result = (JaxbGenericResponse) response.getEntity();
 		} catch (Exception e) {
 			throw new WSClientException("Error en respuesta de "
-					+ Command.PROCESS_INSTANCE_SIGNAL ,e);
+					+ Command.PROCESS_INSTANCE_SIGNAL, e);
 		}
 		if (result.getStatus().name().equals("SUCCESS")) {
 			POSTSignalTokenResponse ret = new POSTSignalTokenResponse();
@@ -504,17 +508,32 @@ public class KieClient implements BRMSClient {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.cuyum.jbpm.client.BRMSClient#getUnassignedTasks(java.lang.String)
-	 */
-	@Override
-	public GETUnassignedTasksResponse getUnassignedTasks(String actorId)
-			throws BRMSClientException {
-		// TODO Auto-generated method stub
-		return null;
+	@SuppressWarnings("unchecked")
+	public List<TaskSummary> getInstanceTasks(List<Long> workItemId,
+			List<Long> taskId, List<String> businessAdministrator,
+			List<String> potentialOwner, List<Status> status,
+			List<String> taskOwner, List<Long> processInstanceId, Boolean union) {
+
+		ClientResponse<?> response;
+		Map<String, List<String>> query = this.qsrv.createMap(workItemId,
+				taskId, businessAdministrator, potentialOwner, status,
+				taskOwner, processInstanceId, union);
+
+		try {
+			response = kieAlt.execute(Command.TASK, null, query);
+		} catch (Exception e) {
+			throw new WSClientException("Error al ejecutar metodo "
+					+ "newInstance", e);
+		}
+		JaxbTaskSummaryListResponse tasks = (JaxbTaskSummaryListResponse) response
+				.getEntity();
+		if (!tasks.getStatus().name().equals("SUCESS")) {
+			throw new WSClientException("Error en respuesta de " + Command.TASK
+					+ ". Status: " + tasks.getStatus() + ": "
+					+ tasks.getCommandName());
+		}
+
+		return tasks.getList();
 	}
 
 	/*
@@ -525,8 +544,103 @@ public class KieClient implements BRMSClient {
 	@Override
 	public GETAssignedTasksResponse getAssignedTasks(String actorId)
 			throws BRMSClientException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!isLogged()) {
+			throw new MissingAuthInformationException();
+
+		}
+		List<String> taskOwner = new ArrayList<String>();
+		taskOwner.add(actorId);
+
+		List<TaskSummary> lts = getInstanceTasks(null, null, null, null, null,
+				taskOwner, null, null);
+		GETAssignedTasksResponse ret = new GETAssignedTasksResponse();
+		ret.setTasks(listTaskSummaryToListHumanTask(lts));
+		ret.setTotalCount(ret.getTasks().size());
+		return ret;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.cuyum.jbpm.client.BRMSClient#getUnassignedTasks(java.lang.String)
+	 */
+	@Override
+	public GETUnassignedTasksResponse getUnassignedTasks(String actorId)
+			throws BRMSClientException {
+		if (!isLogged()) {
+			throw new MissingAuthInformationException();
+
+		}
+		List<String> potencialOwner = new ArrayList<String>();
+		potencialOwner.add(actorId);
+		
+		List<Status> statuses = new ArrayList<Status>();
+		statuses.add(Status.Ready);
+
+		List<TaskSummary> lts = getInstanceTasks(null, null, null,
+				potencialOwner, statuses, null, null, null);
+		GETUnassignedTasksResponse ret = new GETUnassignedTasksResponse();
+		ret.setTasks(listTaskSummaryToListHumanTask(lts));	
+		ret.setTotalCount(ret.getTasks().size());
+		return ret;
+	}
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.cuyum.jbpm.client.BRMSClient#getParticipationsTasks(java.lang.String)
+	 */
+	@Override
+	public GETParticipationsTasksResponse getParticipationsTasks(String actorId)
+			throws BRMSClientException {
+		if (!isLogged()) {
+			throw new MissingAuthInformationException();
+
+		}
+		List<String> potencialOwner = new ArrayList<String>();
+		potencialOwner.add(actorId);
+
+		List<TaskSummary> lts = getInstanceTasks(null, null, null,
+				potencialOwner, null, null, null, null);
+		GETParticipationsTasksResponse ret = new GETParticipationsTasksResponse();
+		ret.setTasks(listTaskSummaryToListHumanTask(lts));	
+		ret.setTotalCount(ret.getTasks().size());
+		return ret;
+
+	}
+
+	private List<HumanTask> listTaskSummaryToListHumanTask(List<TaskSummary> ts) {
+		List<HumanTask> ret = new ArrayList<HumanTask>(ts.size());
+		for (TaskSummary item : ts) {
+			HumanTask ht = taskSummaryToHumanTask(item);
+			ret.add(ht);
+		}
+		return ret;
+	}
+
+	private HumanTask taskSummaryToHumanTask(TaskSummary ts) {
+		HumanTask ret = new HumanTask();
+		ret.setAssignee(ts.getActualOwner() == null ? null : ts
+				.getActualOwner().getId());
+		ret.setCreateDate(ts.getCreatedOn());
+		ret.setCurrentState(ts.getStatus().name());
+		ret.setDescription(ts.getDescription());
+		ret.setDueDate(ts.getExpirationTime());
+		ret.setId(ts.getId());
+		ret.setIsBlocking(false);
+		ret.setIsSignalling(false);
+		ret.setName(ts.getName());
+		ret.setOutcomes(null);// llenar si es solicitado
+		ret.setParticipantGroups(null); // llenar si es solicitado
+		ret.setParticipantUsers(null); // llenar si es solicitado
+		ret.setPriority(ts.getPriority());
+		ret.setProcessId(ts.getProcessId());
+		ret.setProcessInstanceId(ts.getProcessInstanceId() + "");
+		ret.setUrl(null);
+		return ret;
 	}
 
 	/*
@@ -538,8 +652,18 @@ public class KieClient implements BRMSClient {
 	@Override
 	public POSTClaimTaskResponse claimTask(String taskId, String actorId)
 			throws BRMSClientException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!isLogged()) {
+			throw new MissingAuthInformationException();
+
+		}
+		try {
+			taskService.claim(new Long(taskId), actorId);
+			return new POSTClaimTaskResponse();
+		} catch (Exception e) {
+			throw new WSClientException("Error en respuesta de "
+					+ "claimTask", e );
+		}
+
 	}
 
 	/*
@@ -550,8 +674,17 @@ public class KieClient implements BRMSClient {
 	@Override
 	public POSTReleaseTaskResponse releaseTask(String taskId)
 			throws BRMSClientException {
-		// TODO Auto-generated method stub
-		return null;
+		if (!isLogged()) {
+			throw new MissingAuthInformationException();
+
+		}
+		try {
+			taskService.release(new Long(taskId), this.userId);
+			return new POSTReleaseTaskResponse();
+		} catch (Exception e) {
+			throw new WSClientException("Error en respuesta de "
+					+ "releaseTask", e );
+		}
 	}
 
 	/*
@@ -563,8 +696,11 @@ public class KieClient implements BRMSClient {
 	@Override
 	public POSTUpdateTaskResponse updateTask(String taskId,
 			List<BasicNameValuePair> params) throws BRMSClientException {
-		// TODO Auto-generated method stub
-		return null;
+		Map<String,Object> pp = new HashMap<String, Object>();
+		for (BasicNameValuePair vp : params) {
+			pp.put(vp.getName(), vp.getValue());
+		}
+		return updateTask(taskId, pp);
 	}
 
 	/*
@@ -575,22 +711,19 @@ public class KieClient implements BRMSClient {
 	 */
 	@Override
 	public POSTUpdateTaskResponse updateTask(String taskId,
-			Map<String, String> params) throws BRMSClientException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+			Map<String, Object> params) throws BRMSClientException {
+		if (!isLogged()) {
+			throw new MissingAuthInformationException();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.cuyum.jbpm.client.BRMSClient#getParticipationsTasks(java.lang.String)
-	 */
-	@Override
-	public GETParticipationsTasksResponse getParticipationsTasks(String actorId)
-			throws BRMSClientException {
-		// TODO Auto-generated method stub
-		return null;
+		}
+		try {
+			taskService.complete(new Long(taskId), this.userId, params);
+			
+			return new POSTUpdateTaskResponse();
+		} catch (Exception e) {
+			throw new WSClientException("Error en respuesta de "
+					+ "updateTask", e );
+		}
 	}
 
 	/*
@@ -601,8 +734,7 @@ public class KieClient implements BRMSClient {
 	@Override
 	public GETRoleCheckResponse getRoleChecks(List<String> roles)
 			throws BRMSClientException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("getRoleChecks en jbpm6");
 	}
 
 }

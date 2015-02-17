@@ -69,7 +69,7 @@ public class PolicyQuoteTest {
 			
 			for (HumanTask ht : tasks) {
 				System.out.println("Completo tarea "+ht.getName()+"."+ht.getId()+" con estado "+ ht.getCurrentState());
-				Map<String, String> valReview = new HashMap<String, String>();
+				Map<String, Object> valReview = new HashMap<String, Object>();
 				valReview.put("taskPrice", "700");
 				POSTUpdateTaskResponse upt =client.updateTask(ht.getId()+"", valReview);
 				System.out.println(upt);

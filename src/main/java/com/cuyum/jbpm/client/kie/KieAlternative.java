@@ -61,17 +61,17 @@ public class KieAlternative {
 	}
 
 	public ClientResponse<?> execute(Command command) throws Exception {
-		return execute(command, null, null, null);
+		return execute(command, null, null);
 	}
 
 	public ClientResponse<?> execute(Command command,
-			Map<String, String> pathParams, Boolean union) throws Exception {
-		return execute(command, pathParams, null, null);
+			Map<String, String> pathParam) throws Exception {
+		return execute(command, pathParam, null);
 	}
 
 	public ClientResponse<?> execute(Command command,
 			Map<String, String> pathParams,
-			HashMap<String, List<String>> queryParams, Boolean union)
+			Map<String, List<String>> queryParams)
 			throws Exception {
 		ClientRequestFactory requestFactory;
 		String commandUrl = "";
@@ -95,7 +95,7 @@ public class KieAlternative {
 		request.accept(command.getContentType());
 
 		ClientResponse<?> ret = request.get(command.getResponseClass());
-
+		
 		if (ret.getStatus() != 200) {
 
 			throw new WSClientException("Error en respuesta de "

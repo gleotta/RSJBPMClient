@@ -157,7 +157,7 @@ public interface BRMSClient {
 	 * @return
 	 * @throws BRMSClientException
 	 */
-	POSTUpdateTaskResponse updateTask(String taskId, Map<String, String> params)
+	POSTUpdateTaskResponse updateTask(String taskId, Map<String, Object> params)
 			throws BRMSClientException;
 	
 	/**

@@ -445,13 +445,13 @@ public class BRMSClientImpl extends BRMSBaseClient implements BRMSClient {
 
 	@Override
 	public POSTUpdateTaskResponse updateTask(String taskId,
-			Map<String, String> params) throws BRMSClientException {
-		Set<Entry<String, String>> es = params.entrySet();
+			Map<String, Object> params) throws BRMSClientException {
+		Set<Entry<String, Object>> es = params.entrySet();
 		List<BasicNameValuePair> bnm = new ArrayList<BasicNameValuePair>(
 				es.size());
 
-		for (Entry<String, String> val : es) {
-			bnm.add(new BasicNameValuePair(val.getKey(), val.getValue()));
+		for (Entry<String, Object> val : es) {
+			bnm.add(new BasicNameValuePair(val.getKey(), val.getValue().toString()));
 		}
 
 		return this.updateTask(taskId, bnm);
