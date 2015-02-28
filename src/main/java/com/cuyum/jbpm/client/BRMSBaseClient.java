@@ -45,9 +45,9 @@ public abstract class BRMSBaseClient implements BRMSClient{
 
 	public static final Logger log = Logger.getLogger(BRMSBaseClient.class);
 
-	protected String scheme = "http://";
+	//protected String scheme = "http://";
 	protected String host;
-	protected String port;
+	//protected String port;
 	protected String user;
 	protected String pass;
 
@@ -114,7 +114,7 @@ public abstract class BRMSBaseClient implements BRMSClient{
 		String serverURL = getServerUrl();
 
 		/* /path/to/ws */
-		String fullURL = serverURL +"/busines-central/rest/"+wsUrl;
+		String fullURL = serverURL +"/rest"+wsUrl;
 
 		return fullURL;
 
@@ -122,15 +122,15 @@ public abstract class BRMSBaseClient implements BRMSClient{
 
 	protected String getServerUrl() {
 		StringBuilder rootURL = new StringBuilder();
-		// http
-		rootURL.append(scheme);
+//		// http
+//		rootURL.append(scheme);
 
 		/* localhost */
 		rootURL.append(host);
 
-		/* :8080 */
-		if (port != null && !port.isEmpty())
-			rootURL.append(":" + port);
+//		/* :8080 */
+//		if (port != null && !port.isEmpty())
+//			rootURL.append(":" + port);
 
 		String serverURL = rootURL.toString();
 

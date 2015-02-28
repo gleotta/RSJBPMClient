@@ -47,6 +47,8 @@ public class KieRestClientTest {
 	private static final String DEPLOYMENT_ID = "cl.isl.procesos:spm-isl:1.0";
 	private static final String USERNAME = "bpmsAdmin";
 	private static final String PASSWORD = "German76$";
+	//private static final String USERNAME = "jorge";
+	//private static final String PASSWORD = "jorge123$";
 	
 	private KieRestClient client;
 

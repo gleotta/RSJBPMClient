@@ -90,13 +90,13 @@ public class KieRestClient extends BRMSBaseClient {
 	// private String deploymentId = "org.kie.procesojorge:aduanabojorge:1.0";
 	// private String definitionId = "bo.gob.aduana.registro-operadores-jorge";
 
-	private String deploymentUrlStr;
+	//private String deploymentUrlStr;
 	private String deploymentId;
 	// private String definitionId;
-	private String userId;
-	private String password;
+	//private String userId;
+	//private String password;
 
-	private HttpClient httpClient;
+	//private HttpClient httpClient;
 
 	private QueryService queryService = new QueryService();
 
@@ -106,7 +106,7 @@ public class KieRestClient extends BRMSBaseClient {
 		} else if (deploymentId == null || deploymentId.isEmpty()) {
 			log.error("No se puede Levantar engine Remoto (KIE) de BPM porque el contexto no est\u00E1 correctamente configurado");
 		} else {
-			this.deploymentUrlStr = deploymentUrlStr;
+			this.host = deploymentUrlStr;
 			this.deploymentId = deploymentId;
 			// this.userId = user;
 			// this.password = password;
@@ -127,8 +127,8 @@ public class KieRestClient extends BRMSBaseClient {
 		if (pass == null)
 			throw new MissingAuthPasswordInformationException();
 
-		this.userId = user;
-		this.password = pass;
+		this.user = user;
+		this.pass = pass;
 
 		// HttpResponse response = null;
 
@@ -136,8 +136,8 @@ public class KieRestClient extends BRMSBaseClient {
 			log.warn("Tratando de loguearse al cliente REST mientras existe una sesi\u00F3n activa");
 			logout();
 		}
-		httpClient = createPreemptiveAuthHttpClient(user, pass);
-		boolean allowed = (httpClient != null);
+		httpclient = createPreemptiveAuthHttpClient(user, pass);
+		boolean allowed = (httpclient != null);
 
 		// int status = response.getStatusLine().getStatusCode();
 
@@ -165,11 +165,11 @@ public class KieRestClient extends BRMSBaseClient {
 
 		// httpClient.getConnectionManager().closeExpiredConnections();
 		try {
-			httpClient.getConnectionManager().shutdown();
+			httpclient.getConnectionManager().shutdown();
 		} catch (Exception e) {
 			throw new WSClientException("Error al ejecutar metodo logout ", e);
 		}
-		httpClient = null;
+		httpclient = null;
 	}
 
 	/*
@@ -179,7 +179,7 @@ public class KieRestClient extends BRMSBaseClient {
 	 */
 	@Override
 	public boolean isLogged() {
-		return (httpClient != null);
+		return (httpclient != null);
 	}
 
 	/*
@@ -192,32 +192,35 @@ public class KieRestClient extends BRMSBaseClient {
 		Map<String, String> pp = new HashMap<String, String>();
 		pp.put("deploymentId", deploymentId);
 		HttpRequestBase method = getMethod(KieWsConfig.SERVER_STATUS_WS, pp);
-
+		StatusLine sl;
+		HttpResponse rawResponse;
 		// execute ws
 		try {
 
-			HttpResponse rawResponse = execute(method);
+			rawResponse = execute(method);
 
-			StatusLine sl = rawResponse.getStatusLine();
+			sl = rawResponse.getStatusLine();
 
-			if (sl.getStatusCode() != 200) {
-				throw new WSClientException("Error en respuesta de " + method
-						+ ". Status: " + sl);
-			}
-
-			// process the final response
-
-			JaxbDeploymentUnit resp = (JaxbDeploymentUnit) rawResponse
-					.getEntity();
-			GETServerStatusResponse ret = new GETServerStatusResponse();
-			ret.setStatus(resp.getStatus().toString());
-			return ret;
+			
 		} catch (Exception e) {
 			throw new WSClientException("Error al ejecutar metodo " + method, e);
 
 		} finally {
 			method.releaseConnection();
 		}
+		
+		if (sl.getStatusCode() != 200) {
+			throw new WSClientException("Error en respuesta de " + method
+					+ ". Status: " + sl);
+		}
+
+		// process the final response
+
+		JaxbDeploymentUnit resp = (JaxbDeploymentUnit) rawResponse
+				.getEntity();
+		GETServerStatusResponse ret = new GETServerStatusResponse();
+		ret.setStatus(resp.getStatus().toString());
+		return ret;
 	}
 
 	/*
@@ -711,7 +714,7 @@ public class KieRestClient extends BRMSBaseClient {
 			throw new MissingAuthInformationException();
 
 		}
-		if (actorId != null && !actorId.equals(userId))
+		if (actorId != null && !actorId.equals(this.user))
 			throw new UnauthorizedUserException("El actor " + actorId
 					+ " no tiene permiso para realizar esta operación");
 
@@ -926,7 +929,7 @@ public class KieRestClient extends BRMSBaseClient {
 			localContext.setAttribute(contextId, basicAuth);
 
 			// Add as the first request interceptor
-			client.addRequestInterceptor(new PreemptiveAuth(contextId), 0);
+			//client.addRequestInterceptor(new PreemptiveAuth(contextId), 0);
 		}
 
 		String hostname = "localhost";
