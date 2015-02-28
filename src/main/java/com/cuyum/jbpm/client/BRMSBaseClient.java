@@ -21,6 +21,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -52,6 +53,7 @@ public abstract class BRMSBaseClient implements BRMSClient{
 	protected String pass;
 
 	protected HttpClient httpclient;
+	protected BasicHttpContext httpContext;
 
 	protected final HttpRequestBase getMethod(WsConfig ws,  Map<String, String> pathParams) {
 		return getMethod(ws, null, pathParams, null);
@@ -69,7 +71,7 @@ public abstract class BRMSBaseClient implements BRMSClient{
 		
 		if (query != null) {
 			String squery=getQuery(query);
-			url = url + query;
+			url = url + squery;
 		}
 		System.out.println("URL: "+url);
 		HttpRequestBase theMethod = null;
@@ -241,7 +243,7 @@ public abstract class BRMSBaseClient implements BRMSClient{
 			log.debug("Ejecutando: " + method);
 			System.out.println("Ejecutando: " + method);
 			//method.get
-			resp = httpclient.execute(method);
+			resp = httpclient.execute(method, httpContext);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			System.out.println("Error: " + e.getMessage());

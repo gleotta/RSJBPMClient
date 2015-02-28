@@ -99,6 +99,8 @@ public class KieRestClient extends BRMSBaseClient {
 	//private HttpClient httpClient;
 
 	private QueryService queryService = new QueryService();
+	
+	
 
 	public KieRestClient(String deploymentUrlStr, String deploymentId) {
 		if (deploymentUrlStr == null || deploymentUrlStr.isEmpty()) {
@@ -200,27 +202,29 @@ public class KieRestClient extends BRMSBaseClient {
 			rawResponse = execute(method);
 
 			sl = rawResponse.getStatusLine();
+			
+			if (sl.getStatusCode() != 200) {
+				throw new WSClientException("Error en respuesta de " + method
+						+ ". Status: " + sl);
+			}
+
+			// process the final response
+
+			JaxbDeploymentUnit resp = (JaxbDeploymentUnit) processResponse(rawResponse,KieWsConfig.SERVER_STATUS_WS.responseClass());
+					
+			GETServerStatusResponse ret = new GETServerStatusResponse();
+			ret.setStatus(resp.getStatus().toString());
+			return ret;
 
 			
 		} catch (Exception e) {
-			throw new WSClientException("Error al ejecutar metodo " + method, e);
+			throw new WSClientException("Error al ejecutar metodo " + method+": " + e.getMessage(), e);
 
 		} finally {
 			method.releaseConnection();
 		}
 		
-		if (sl.getStatusCode() != 200) {
-			throw new WSClientException("Error en respuesta de " + method
-					+ ". Status: " + sl);
-		}
-
-		// process the final response
-
-		JaxbDeploymentUnit resp = (JaxbDeploymentUnit) rawResponse
-				.getEntity();
-		GETServerStatusResponse ret = new GETServerStatusResponse();
-		ret.setStatus(resp.getStatus().toString());
-		return ret;
+		
 	}
 
 	/*
@@ -908,15 +912,15 @@ public class KieRestClient extends BRMSBaseClient {
 	 * @return A {@link DefaultHttpClient} instance that will authenticate using
 	 *         the given username and password.
 	 */
-	private static DefaultHttpClient createPreemptiveAuthHttpClient(
+	private DefaultHttpClient createPreemptiveAuthHttpClient(
 			String userName, String password) {
-		BasicHttpContext localContext = new BasicHttpContext();
+		httpContext = new BasicHttpContext();
 		BasicHttpParams params = new BasicHttpParams();
 		int timeoutMilliSeconds = 5 * 1000;
 		HttpConnectionParams.setConnectionTimeout(params, timeoutMilliSeconds);
 		HttpConnectionParams.setSoTimeout(params, timeoutMilliSeconds);
 		DefaultHttpClient client = new DefaultHttpClient(params);
-
+		
 		if (userName != null && !"".equals(userName)) {
 			client.getCredentialsProvider().setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
@@ -926,10 +930,10 @@ public class KieRestClient extends BRMSBaseClient {
 			BasicScheme basicAuth = new BasicScheme();
 
 			String contextId = UUID.randomUUID().toString();
-			localContext.setAttribute(contextId, basicAuth);
+			httpContext.setAttribute(contextId, basicAuth);
 
 			// Add as the first request interceptor
-			//client.addRequestInterceptor(new PreemptiveAuth(contextId), 0);
+			client.addRequestInterceptor(new PreemptiveAuth(contextId), 0);
 		}
 
 		String hostname = "localhost";
