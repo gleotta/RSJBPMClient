@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.cuyum.jbpm.client.BRMSClient;
-import com.cuyum.jbpm.client.BRMSClientImpl;
 import com.cuyum.jbpm.client.artifacts.HumanTask;
 import com.cuyum.jbpm.client.artifacts.responses.GETAssignedTasksResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETParticipationsTasksResponse;
@@ -13,6 +12,7 @@ import com.cuyum.jbpm.client.artifacts.responses.GETProcessInstancesResponse;
 import com.cuyum.jbpm.client.artifacts.responses.POSTClaimTaskResponse;
 import com.cuyum.jbpm.client.artifacts.responses.POSTCreateInstanceResponse;
 import com.cuyum.jbpm.client.artifacts.responses.POSTUpdateTaskResponse;
+import com.cuyum.jbpm.client.kie.KieRestClient;
 
 public class PolicyQuoteTest {
 
@@ -22,7 +22,7 @@ public class PolicyQuoteTest {
 	public static void main(String[] args) {
 		
 		//creo una conexión al BRMS
-		BRMSClient client = new BRMSClientImpl("localhost", "8080");
+		BRMSClient client = new KieRestClient("localhost", "8080");
 		
 		try {
 			

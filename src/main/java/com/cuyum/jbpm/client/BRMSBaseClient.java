@@ -3,12 +3,11 @@
  */
 package com.cuyum.jbpm.client;
 
-import static com.cuyum.jbpm.client.config.BRMSWsConfig.LOGOUT_WS;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
@@ -26,8 +25,6 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
-
-import com.cuyum.jbpm.client.artifacts.responses.BRMSClientWSResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETDatasetInstanceResponse;
 import com.cuyum.jbpm.client.config.WSUrls;
 import com.cuyum.jbpm.client.config.WsConfig;
@@ -44,10 +41,9 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
  * @author Jorge Morando
  * 
  */
-@Deprecated
-public abstract class BRMSBaseClient {
+public abstract class BRMSBaseClient implements BRMSClient{
 
-	public static final Logger log = Logger.getLogger(BRMSClientImpl.class);
+	public static final Logger log = Logger.getLogger(BRMSBaseClient.class);
 
 	protected String scheme = "http://";
 	protected String host;
@@ -57,21 +53,23 @@ public abstract class BRMSBaseClient {
 
 	protected HttpClient httpclient;
 
-	protected final HttpRequestBase getMethod(WsConfig ws, String[]... args) {
-		return getMethod(ws, null, args);
+	protected final HttpRequestBase getMethod(WsConfig ws,  Map<String, String> pathParams) {
+		return getMethod(ws, null, pathParams, null);
 
 	}
 
-	protected HttpRequestBase getMethod(WsConfig ws, List<BasicNameValuePair> bodyParams, String[]... args) {
+	protected HttpRequestBase getMethod(WsConfig ws, Map<String, Object> bodyParams, Map<String, String> pathParams, Map<String, List<String>> query) {
 		String url = null;
-		
-		
-		
-		if (ws.hasPathParams() && args != null) {
-			url = ws.injectPathParams2(args);
+
+		if (ws.hasPathParams() && pathParams != null) {
+			url = ws.injectPathParams2(pathParams);
 		} else {
 			url = new String(ws.path());
-			
+		}
+		
+		if (query != null) {
+			String squery=getQuery(query);
+			url = url + query;
 		}
 		System.out.println("URL: "+url);
 		HttpRequestBase theMethod = null;
@@ -85,17 +83,17 @@ public abstract class BRMSBaseClient {
 				theMethod = new HttpPost(urlpath);
 				if (bodyParams != null) {
 					if (bodyParams.size() == 0) {
-						bodyParams.add(new BasicNameValuePair("submit","submit"));
+						bodyParams.put("submit","submit");
 					}
 					MultipartEntity entity = new MultipartEntity(
 							HttpMultipartMode.BROWSER_COMPATIBLE);
-					for (BasicNameValuePair nvp : bodyParams) {
-						entity.addPart(nvp.getName(),
-								new StringBody(nvp.getValue()));
-						System.out.println("BODY NP: "+nvp.getName()+":"+nvp.getValue());
+					Set<String> keys =bodyParams.keySet();
+					for (String key : keys) {
+						entity.addPart(key,
+								new StringBody(bodyParams.get(key)+""));
+						System.out.println("BODY NP: "+key+":"+bodyParams.get(key));
+					
 					}
-					((HttpPost) theMethod).setEntity(entity);
-					System.out.println("Entity:"+entity.getContentType().getName()+" "+entity.getContentType().getValue());
 				}
 				break;
 			default: // GET
@@ -116,7 +114,7 @@ public abstract class BRMSBaseClient {
 		String serverURL = getServerUrl();
 
 		/* /path/to/ws */
-		String fullURL = serverURL +wsUrl;
+		String fullURL = serverURL +"/busines-central/rest/"+wsUrl;
 
 		return fullURL;
 
@@ -140,19 +138,19 @@ public abstract class BRMSBaseClient {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected final <R extends BRMSClientWSResponse> R processResponse(
+	protected final Object processResponse(
 			HttpResponse rawResponse,
-			Class<? extends BRMSClientWSResponse> clazz)
+			Class<?> clazz)
 			throws BRMSClientException {
 		log.debug("Processing " + clazz.getSimpleName());
 
 		// Create Jackson object mapper
 		ObjectMapper mapper = new ObjectMapper();
-
+		
 		try {
 			String entity = EntityUtils.toString(rawResponse.getEntity());
 			log.debug("Atempting entity Conversion to " + clazz.getSimpleName());
-			R respEntity = (R) mapper.readValue(entity, clazz);
+			Object respEntity = mapper.readValue(entity, clazz);
 			return respEntity;
 		} catch (Exception e) {
 			throw new WSClientException(e);
@@ -312,21 +310,25 @@ public abstract class BRMSBaseClient {
 
 	}
 	
-	public void logout() {
-		log.debug("Disconnecting...");
-		// http response
-
-		// execute ws
-		HttpRequestBase method = getMethod(LOGOUT_WS);
-		try {
-			this.execute(method);
-		} catch (Exception e) {
-			throw new WSClientException("Error al ejecutar metodo " + method, e);
-
-		} finally {
-			method.releaseConnection();
+	
+	public String getQuery(Map<String, List<String>> parameters) {
+		String url = "?";
+		String param;
+		for (String key : parameters.keySet()) {
+			if(parameters.get(key)!=null){
+				for (String value : parameters.get(key)) {
+					if(value!=null){
+						param = key + "=" + value + "&";
+						url = url + param;
+					}
+				}
+			}
 		}
-		// no response to process
+		url= url.substring(0, url.length()-1);
+		return url;
 	}
+
+	
+
 
 }

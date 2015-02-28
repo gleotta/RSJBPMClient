@@ -1,5 +1,7 @@
 package com.cuyum.jbpm.client.config;
 
+import java.util.Map;
+
 import javax.ws.rs.core.MediaType;
 
 import com.cuyum.jbpm.client.artifacts.responses.BRMSClientWSResponse;
@@ -32,13 +34,13 @@ public interface WsConfig {
 	 * Indicates What Media Type the WS accepts
 	 * @return MediaType the ws accepts
 	 */
-	public MediaType accepts();
+	public String accepts();
 	
 	/**
 	 * Retrieves the response class object for the ws
 	 * @return
 	 */
-	public Class<? extends BRMSClientWSResponse> responseClass();
+	public Class<?> responseClass();
 	
 	/**
 	 * Retrieves the request method of the web service
@@ -51,11 +53,13 @@ public interface WsConfig {
 	 * @return
 	 */
 	public boolean hasPathParams();
+
+	public String injectPathParams2(Map<String, String> pathParams);
 	
-	/**
-	 * Injects path params in ws path
-	 * @param params
-	 */
-	public String injectPathParams2(String[]...params);
+//	/**
+//	 * Injects path params in ws path
+//	 * @param params
+//	 */
+//	public String injectPathParams2(String[]...params);
 	
 }

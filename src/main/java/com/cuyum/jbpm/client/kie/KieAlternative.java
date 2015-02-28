@@ -4,29 +4,18 @@
 package com.cuyum.jbpm.client.kie;
 
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientRequestFactory;
 import org.jboss.resteasy.client.ClientResponse;
-import org.jboss.resteasy.client.ClientResponseFailure;
-import org.jbpm.process.audit.command.AuditCommand;
 import org.kie.services.client.api.RestRequestHelper;
 import org.kie.services.client.api.command.RemoteConfiguration;
-import org.kie.services.client.api.command.exception.RemoteApiException;
-import org.kie.services.client.api.command.exception.RemoteCommunicationException;
-import org.kie.services.client.api.command.exception.RemoteTaskException;
 import org.kie.services.client.serialization.JaxbSerializationProvider;
-import org.kie.services.client.serialization.jaxb.impl.JaxbCommandResponse;
-import org.kie.services.client.serialization.jaxb.impl.JaxbCommandsRequest;
-import org.kie.services.client.serialization.jaxb.impl.JaxbCommandsResponse;
-import org.kie.services.client.serialization.jaxb.rest.JaxbExceptionResponse;
 
 import com.cuyum.jbpm.client.exception.WSClientException;
 
@@ -153,4 +142,10 @@ public class KieAlternative {
 
 	}
 
+	
+
+    
+
+    
 }
+

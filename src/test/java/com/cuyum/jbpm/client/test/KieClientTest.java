@@ -12,16 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
-import org.drools.core.command.runtime.process.GetProcessIdsCommand;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.kie.services.client.serialization.jaxb.impl.deploy.JaxbDeploymentUnitList;
 
-import com.cuyum.jbpm.client.BRMSClient;
-import com.cuyum.jbpm.client.BRMSClientImpl;
 import com.cuyum.jbpm.client.artifacts.HumanTask;
 import com.cuyum.jbpm.client.artifacts.ProcessInstanceToken;
 import com.cuyum.jbpm.client.artifacts.responses.GETAssignedTasksResponse;
@@ -31,11 +26,9 @@ import com.cuyum.jbpm.client.artifacts.responses.GETProcessDefinitionsResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETRoleCheckResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETServerStatusResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETUnassignedTasksResponse;
-import com.cuyum.jbpm.client.artifacts.responses.POSTClaimTaskResponse;
 import com.cuyum.jbpm.client.artifacts.responses.POSTCreateInstanceResponse;
 import com.cuyum.jbpm.client.artifacts.responses.POSTNewInstanceResponse;
 import com.cuyum.jbpm.client.artifacts.responses.POSTSignalTokenResponse;
-import com.cuyum.jbpm.client.artifacts.responses.POSTUpdateTaskResponse;
 import com.cuyum.jbpm.client.kie.KieClient;
 
 

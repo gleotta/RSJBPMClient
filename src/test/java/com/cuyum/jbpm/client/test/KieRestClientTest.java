@@ -12,14 +12,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.cuyum.jbpm.client.BRMSClient;
-import com.cuyum.jbpm.client.BRMSClientImpl;
 import com.cuyum.jbpm.client.artifacts.HumanTask;
 import com.cuyum.jbpm.client.artifacts.ProcessInstanceToken;
 import com.cuyum.jbpm.client.artifacts.responses.GETAssignedTasksResponse;
@@ -28,17 +26,16 @@ import com.cuyum.jbpm.client.artifacts.responses.GETParticipationsTasksResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETRoleCheckResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETServerStatusResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETUnassignedTasksResponse;
-import com.cuyum.jbpm.client.artifacts.responses.POSTClaimTaskResponse;
 import com.cuyum.jbpm.client.artifacts.responses.POSTCreateInstanceResponse;
 import com.cuyum.jbpm.client.artifacts.responses.POSTNewInstanceResponse;
-import com.cuyum.jbpm.client.artifacts.responses.POSTUpdateTaskResponse;
+import com.cuyum.jbpm.client.kie.KieRestClient;
 
 
 /**
  * @author german
  *
  */
-public class BrmsClientTest {
+public class KieRestClientTest {
 	
 //	private static final String BRMS_ADRESS = "localhost";
 //	private static final String BRMS_PORT = "8080";
@@ -52,14 +49,14 @@ public class BrmsClientTest {
 	
 	private BRMSClient client;
 
-	private Logger log = Logger.getLogger(BrmsClientTest.class);
+	private Logger log = Logger.getLogger(KieRestClientTest.class);
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
 		log.info("Entro al setup");
-		client = new BRMSClientImpl(BRMS_ADRESS, BRMS_PORT);
+		client = new KieRestClient(BRMS_ADRESS, BRMS_PORT);
 	}
 
 	/**
