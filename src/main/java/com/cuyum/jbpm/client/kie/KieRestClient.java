@@ -90,17 +90,15 @@ public class KieRestClient extends BRMSBaseClient {
 	// private String deploymentId = "org.kie.procesojorge:aduanabojorge:1.0";
 	// private String definitionId = "bo.gob.aduana.registro-operadores-jorge";
 
-	//private String deploymentUrlStr;
+	// private String deploymentUrlStr;
 	private String deploymentId;
 	// private String definitionId;
-	//private String userId;
-	//private String password;
+	// private String userId;
+	// private String password;
 
-	//private HttpClient httpClient;
+	// private HttpClient httpClient;
 
 	private QueryService queryService = new QueryService();
-	
-	
 
 	public KieRestClient(String deploymentUrlStr, String deploymentId) {
 		if (deploymentUrlStr == null || deploymentUrlStr.isEmpty()) {
@@ -123,7 +121,12 @@ public class KieRestClient extends BRMSBaseClient {
 	 */
 
 	public void login(String user, String pass) throws Exception {
-
+		if (isLogged()) {
+			// log.warn("Tratando de loguearse al cliente REST mientras existe una sesi\u00F3n activa");
+			// logout();
+			throw new WSClientException(
+					"Ya existe una sesión activa con user: " + this.user);
+		}
 		if (user == null)
 			throw new MissingAuthUserInformationException();
 		if (pass == null)
@@ -132,28 +135,24 @@ public class KieRestClient extends BRMSBaseClient {
 		this.user = user;
 		this.pass = pass;
 
-		// HttpResponse response = null;
-
-		if (isLogged()) {
-			log.warn("Tratando de loguearse al cliente REST mientras existe una sesi\u00F3n activa");
-			logout();
-		}
-		httpclient = createPreemptiveAuthHttpClient(user, pass);
-		boolean allowed = (httpclient != null);
-
 		// int status = response.getStatusLine().getStatusCode();
 
-		if (!allowed) {
-			throw new UnauthorizedUserException("El usuario \"" + user
-					+ "\" no se encuentra autorizado en la plataforma BRMS");
+		try {
+			httpclient = createPreemptiveAuthHttpClient(user, pass);
+			GETServerStatusResponse statusServer = this.getServerStatus();
+			boolean allowed = (statusServer != null && statusServer.getStatus()
+					.equals("DEPLOYED"));
+			if (!allowed) {
+				httpclient=null;
+				throw new UnauthorizedUserException("El usuario \"" + user
+						+ "\" no se puede logear a server. Server Status:"
+						+ statusServer.getStatus() + ", Server Message: "
+						+ statusServer.getMessage());
+			}
+		} catch (Exception e) {
+			httpclient=null;
+			throw e;
 		}
-
-		// this.getServerStatus()==null
-		// if (this.getServerStatus()==null||) {
-		// log.error("El usuario no se puede logear: status " + status);
-		// throw new MissingAuthInformationException(
-		// "El usuario no se puede logear: status " + status);
-		// }
 
 	}
 
@@ -200,31 +199,34 @@ public class KieRestClient extends BRMSBaseClient {
 		try {
 
 			rawResponse = execute(method);
-
 			sl = rawResponse.getStatusLine();
-			
+			GETServerStatusResponse ret = new GETServerStatusResponse();
 			if (sl.getStatusCode() != 200) {
-				throw new WSClientException("Error en respuesta de " + method
-						+ ". Status: " + sl);
+				// throw new WSClientException("Error en respuesta de " + method
+				// + ". Status: " + sl);
+				ret.setMessage(sl.getReasonPhrase());
+				ret.setStatus(sl.getStatusCode() + "");
+				return ret;
+			} else {
+
+				// process the final response
+
+				JaxbDeploymentUnit resp = (JaxbDeploymentUnit) processResponse(
+						rawResponse,
+						KieWsConfig.SERVER_STATUS_WS.responseClass());
+
+				ret.setStatus(resp.getStatus().toString());
+				return ret;
 			}
 
-			// process the final response
-
-			JaxbDeploymentUnit resp = (JaxbDeploymentUnit) processResponse(rawResponse,KieWsConfig.SERVER_STATUS_WS.responseClass());
-					
-			GETServerStatusResponse ret = new GETServerStatusResponse();
-			ret.setStatus(resp.getStatus().toString());
-			return ret;
-
-			
 		} catch (Exception e) {
-			throw new WSClientException("Error al ejecutar metodo " + method+": " + e.getMessage(), e);
+			throw new WSClientException("Error al ejecutar metodo " + method
+					+ ": " + e.getMessage(), e);
 
 		} finally {
 			method.releaseConnection();
 		}
-		
-		
+
 	}
 
 	/*
@@ -849,12 +851,13 @@ public class KieRestClient extends BRMSBaseClient {
 		Set<String> keys = params.keySet();
 		for (String key : keys) {
 			Object value = params.get(key);
-			String nkey = "map_"+key;
+			String nkey = "map_" + key;
 			List<String> vals = new ArrayList<String>(1);
-			vals.add(value+"");
+			vals.add(value + "");
 			queryParams.put(nkey, vals);
 		}
-		HttpRequestBase method = getMethod(KieWsConfig.UPDATE_TASK_WS, null, pathParams, queryParams);
+		HttpRequestBase method = getMethod(KieWsConfig.UPDATE_TASK_WS, null,
+				pathParams, queryParams);
 
 		try {
 			// execute ws
@@ -912,15 +915,15 @@ public class KieRestClient extends BRMSBaseClient {
 	 * @return A {@link DefaultHttpClient} instance that will authenticate using
 	 *         the given username and password.
 	 */
-	private DefaultHttpClient createPreemptiveAuthHttpClient(
-			String userName, String password) {
+	private DefaultHttpClient createPreemptiveAuthHttpClient(String userName,
+			String password) {
 		httpContext = new BasicHttpContext();
 		BasicHttpParams params = new BasicHttpParams();
 		int timeoutMilliSeconds = 5 * 1000;
 		HttpConnectionParams.setConnectionTimeout(params, timeoutMilliSeconds);
 		HttpConnectionParams.setSoTimeout(params, timeoutMilliSeconds);
 		DefaultHttpClient client = new DefaultHttpClient(params);
-		
+
 		if (userName != null && !"".equals(userName)) {
 			client.getCredentialsProvider().setCredentials(
 					new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
