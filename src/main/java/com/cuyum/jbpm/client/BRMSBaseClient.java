@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+
 import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -24,16 +27,11 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import com.cuyum.jbpm.client.artifacts.responses.GETDatasetInstanceResponse;
 import com.cuyum.jbpm.client.config.WSUrls;
 import com.cuyum.jbpm.client.config.WsConfig;
 import com.cuyum.jbpm.client.exception.BRMSClientException;
-import com.cuyum.jbpm.client.exception.MissingAuthInformationException;
-import com.cuyum.jbpm.client.exception.MissingAuthPasswordInformationException;
-import com.cuyum.jbpm.client.exception.MissingAuthUserInformationException;
-import com.cuyum.jbpm.client.exception.UnauthorizedUserException;
 import com.cuyum.jbpm.client.exception.WSClientException;
 import com.cuyum.jbpm.client.exception.WSException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -42,25 +40,28 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
  * @author Jorge Morando
  * 
  */
-public abstract class BRMSBaseClient implements BRMSClient{
+public abstract class BRMSBaseClient implements BRMSClient {
 
 	public static final Logger log = Logger.getLogger(BRMSBaseClient.class);
 
-	//protected String scheme = "http://";
+	// protected String scheme = "http://";
 	protected String host;
-	//protected String port;
+	// protected String port;
 	protected String user;
 	protected String pass;
 
 	protected HttpClient httpclient;
 	protected BasicHttpContext httpContext;
 
-	protected final HttpRequestBase getMethod(WsConfig ws,  Map<String, String> pathParams) {
+	protected final HttpRequestBase getMethod(WsConfig ws,
+			Map<String, String> pathParams) {
 		return getMethod(ws, null, pathParams, null);
 
 	}
 
-	protected HttpRequestBase getMethod(WsConfig ws, Map<String, Object> bodyParams, Map<String, String> pathParams, Map<String, List<String>> query) {
+	protected HttpRequestBase getMethod(WsConfig ws,
+			Map<String, Object> bodyParams, Map<String, String> pathParams,
+			Map<String, List<String>> query) {
 		String url = null;
 
 		if (ws.hasPathParams() && pathParams != null) {
@@ -68,33 +69,34 @@ public abstract class BRMSBaseClient implements BRMSClient{
 		} else {
 			url = new String(ws.path());
 		}
-		
+
 		if (query != null) {
-			String squery=getQuery(query);
+			String squery = getQuery(query);
 			url = url + squery;
 		}
-		System.out.println("URL: "+url);
+		System.out.println("URL: " + url);
 		HttpRequestBase theMethod = null;
-		
+
 		try {
 
 			String urlpath = buildUrl(url);
-			System.out.println("URLPath getMethod: "+urlpath);
+			System.out.println("URLPath getMethod: " + urlpath);
 			switch (ws.getMethod()) {
 			case POST:
 				theMethod = new HttpPost(urlpath);
 				if (bodyParams != null) {
 					if (bodyParams.size() == 0) {
-						bodyParams.put("submit","submit");
+						bodyParams.put("submit", "submit");
 					}
 					MultipartEntity entity = new MultipartEntity(
 							HttpMultipartMode.BROWSER_COMPATIBLE);
-					Set<String> keys =bodyParams.keySet();
+					Set<String> keys = bodyParams.keySet();
 					for (String key : keys) {
-						entity.addPart(key,
-								new StringBody(bodyParams.get(key)+""));
-						System.out.println("BODY NP: "+key+":"+bodyParams.get(key));
-					
+						entity.addPart(key, new StringBody(bodyParams.get(key)
+								+ ""));
+						System.out.println("BODY NP: " + key + ":"
+								+ bodyParams.get(key));
+
 					}
 				}
 				break;
@@ -102,7 +104,7 @@ public abstract class BRMSBaseClient implements BRMSClient{
 				theMethod = new HttpGet(urlpath);
 				break;
 			}
-			System.out.println("THE METHOD:"+theMethod);
+			System.out.println("THE METHOD:" + theMethod);
 			return theMethod;
 		} catch (Exception e) {
 			log.error(e);
@@ -116,7 +118,7 @@ public abstract class BRMSBaseClient implements BRMSClient{
 		String serverURL = getServerUrl();
 
 		/* /path/to/ws */
-		String fullURL = serverURL +"/rest"+wsUrl;
+		String fullURL = serverURL + "/rest" + wsUrl;
 
 		return fullURL;
 
@@ -124,15 +126,15 @@ public abstract class BRMSBaseClient implements BRMSClient{
 
 	protected String getServerUrl() {
 		StringBuilder rootURL = new StringBuilder();
-//		// http
-//		rootURL.append(scheme);
+		// // http
+		// rootURL.append(scheme);
 
 		/* localhost */
 		rootURL.append(host);
 
-//		/* :8080 */
-//		if (port != null && !port.isEmpty())
-//			rootURL.append(":" + port);
+		// /* :8080 */
+		// if (port != null && !port.isEmpty())
+		// rootURL.append(":" + port);
 
 		String serverURL = rootURL.toString();
 
@@ -140,39 +142,53 @@ public abstract class BRMSBaseClient implements BRMSClient{
 	}
 
 	@SuppressWarnings("unchecked")
-	protected final Object processResponse(
-			HttpResponse rawResponse,
-			Class<?> clazz)
-			throws BRMSClientException {
-		log.debug("Processing " + clazz.getSimpleName());
-
-		// Create Jackson object mapper
-		ObjectMapper mapper = new ObjectMapper();
-		
-		try {
-			String entity = EntityUtils.toString(rawResponse.getEntity());
-			log.debug("Atempting entity Conversion to " + clazz.getSimpleName());
-			Object respEntity = mapper.readValue(entity, clazz);
-			return respEntity;
-		} catch (Exception e) {
-			throw new WSClientException(e);
-		}
-	}
-	
-	protected final String processResponse(
-			HttpResponse rawResponse)
-			throws BRMSClientException {
-
-		// Create Jackson object mapper
-		ObjectMapper mapper = new ObjectMapper();
+	protected final Object processResponse(HttpResponse rawResponse,
+			Class<?> clazz) throws BRMSClientException {
+		// log.debug("Processing " + clazz.getSimpleName());
+		//
+		// // Create Jackson object mapper
+		// ObjectMapper mapper = new ObjectMapper();
+		//
+		// try {
+		// String entity = EntityUtils.toString(rawResponse.getEntity());
+		// log.debug("Atempting entity Conversion to " + clazz.getSimpleName());
+		// Object respEntity = mapper.readValue(entity, clazz);
+		// return respEntity;
+		// } catch (Exception e) {
+		// throw new WSClientException(e);
+		// }
 
 		try {
-			String entity = EntityUtils.toString(rawResponse.getEntity());
-			return entity;
+
+			// File file = new File("C:\\file.xml");
+			// String entity = EntityUtils.toString(rawResponse.getEntity());
+			JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			Object ret = jaxbUnmarshaller.unmarshal(rawResponse
+					.getEntity().getContent());
+			System.out.println(ret);
+			return ret;
+
 		} catch (Exception e) {
-			throw new WSClientException(e);
+			throw new RuntimeException("Error convirtiendo respuesta xml a "+clazz.getName(), e);
 		}
+
 	}
+
+	// protected final String processResponse(
+	// HttpResponse rawResponse)
+	// throws BRMSClientException {
+	//
+	// // Create Jackson object mapper
+	// ObjectMapper mapper = new ObjectMapper();
+	//
+	// try {
+	// String entity = EntityUtils.toString(rawResponse.getEntity());
+	// return entity;
+	// } catch (Exception e) {
+	// throw new WSClientException(e);
+	// }
+	// }
 
 	@SuppressWarnings({ "rawtypes" })
 	protected final GETDatasetInstanceResponse processDatasetInstanceResponse(
@@ -242,7 +258,7 @@ public abstract class BRMSBaseClient implements BRMSClient{
 		try {
 			log.debug("Ejecutando: " + method);
 			System.out.println("Ejecutando: " + method);
-			//method.get
+			// method.get
 			resp = httpclient.execute(method, httpContext);
 		} catch (Exception e) {
 			log.error(e.getMessage());
@@ -252,7 +268,7 @@ public abstract class BRMSBaseClient implements BRMSClient{
 
 		return resp;
 	}
-	
+
 	public boolean isLogged() {
 		HttpGet sidMethod = new HttpGet(getServerUrl() + WSUrls.SID_WS_URL);
 		// this call will fail because it is not logged in
@@ -273,64 +289,22 @@ public abstract class BRMSBaseClient implements BRMSClient{
 			sidMethod.releaseConnection();
 		}
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.cuyum.jbpm.client.BRMSClient#disconnect()
-	 */
 
-	public void login(String user, String pass) throws Exception{
-
-		if (user == null)
-			throw new MissingAuthUserInformationException();
-		if (pass == null)
-			throw new MissingAuthPasswordInformationException();
-
-		this.user = user;
-		this.pass = pass;
-
-		HttpResponse response = null;
-
-		if(isLogged()){
-			log.warn("Tratando de loguearse al cliente REST mientras existe una sesi\u00F3n activa");
-			logout();
-		}
-		response = executeLogin(user, pass);
-		boolean allowed = processResponse(response).indexOf("401")==-1;
-		int status = response.getStatusLine().getStatusCode();
-
-		if(!allowed){
-			throw new UnauthorizedUserException("El usuario \""+ user +"\" no se encuentra autorizado en la plataforma BRMS");
-		}
-		
-		if (status != 200 && status != 302) {
-			log.error("El usuario no se puede logear: status " + status);
-			throw new MissingAuthInformationException(
-					"El usuario no se puede logear: status " + status);
-		}
-
-	}
-	
-	
 	public String getQuery(Map<String, List<String>> parameters) {
 		String url = "?";
 		String param;
 		for (String key : parameters.keySet()) {
-			if(parameters.get(key)!=null){
+			if (parameters.get(key) != null) {
 				for (String value : parameters.get(key)) {
-					if(value!=null){
+					if (value != null) {
 						param = key + "=" + value + "&";
 						url = url + param;
 					}
 				}
 			}
 		}
-		url= url.substring(0, url.length()-1);
+		url = url.substring(0, url.length() - 1);
 		return url;
 	}
-
-	
-
 
 }
