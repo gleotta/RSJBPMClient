@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import com.cuyum.jbpm.client.kie.api.Command;
+import com.cuyum.jbpm.client.kie.api.Process;
 import com.cuyum.jbpm.client.kie.api.ProcessInstance;
 import com.cuyum.jbpm.client.kie.serialization.jaxb.impl.AbstractJaxbCommandResponse;
 import com.cuyum.jbpm.client.kie.serialization.rest.JaxbRequestStatus;
@@ -99,11 +100,7 @@ public class JaxbProcessInstanceResponse extends AbstractJaxbCommandResponse<Pro
         throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + ProcessInstance.class.getSimpleName() + " implementation.");
     }
     
-    @Override
-    public Process getProcess() {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + ProcessInstance.class.getSimpleName() + " implementation.");
-    }
+ 
 
     public String[] getEventTypes() {
         return eventTypes.toArray(new String[eventTypes.size()]);
@@ -135,5 +132,11 @@ public class JaxbProcessInstanceResponse extends AbstractJaxbCommandResponse<Pro
     public void setResult(ProcessInstance result) {
         initialize(result);
     }
+
+	@Override
+	public Process getProcess() {
+		String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
+        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + ProcessInstance.class.getSimpleName() + " implementation.");
+	}
     
 }

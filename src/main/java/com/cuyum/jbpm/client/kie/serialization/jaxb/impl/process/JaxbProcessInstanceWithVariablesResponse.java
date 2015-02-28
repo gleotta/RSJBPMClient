@@ -1,4 +1,4 @@
-package org.kie.services.client.serialization.jaxb.impl.process;
+package com.cuyum.jbpm.client.kie.serialization.jaxb.impl.process;
 
 import java.util.Map;
 
@@ -8,8 +8,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
-import org.kie.api.runtime.process.ProcessInstance;
-import org.kie.services.client.serialization.jaxb.rest.AbstractJaxbResponse;
+import com.cuyum.jbpm.client.kie.api.ProcessInstance;
+import com.cuyum.jbpm.client.kie.serialization.rest.AbstractJaxbResponse;
 
 @XmlRootElement(name="process-instance-with-vars")
 @XmlAccessorType(XmlAccessType.FIELD)

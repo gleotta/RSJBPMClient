@@ -13,15 +13,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlTransient;
 
-import com.cuyum.jbpm.client.artifacts.ProcessInstance;
 import com.cuyum.jbpm.client.kie.api.Command;
+import com.cuyum.jbpm.client.kie.api.ProcessInstance;
 import com.cuyum.jbpm.client.kie.serialization.jaxb.impl.audit.JaxbHistoryLogList;
 import com.cuyum.jbpm.client.kie.serialization.jaxb.impl.audit.JaxbNodeInstanceLog;
 import com.cuyum.jbpm.client.kie.serialization.jaxb.impl.audit.JaxbProcessInstanceLog;
 import com.cuyum.jbpm.client.kie.serialization.jaxb.impl.audit.JaxbVariableInstanceLog;
 import com.cuyum.jbpm.client.kie.serialization.jaxb.impl.process.JaxbProcessInstanceListResponse;
 import com.cuyum.jbpm.client.kie.serialization.jaxb.impl.process.JaxbProcessInstanceResponse;
-import com.cuyum.jbpm.client.kie.serialization.jaxb.impl.process.JaxbWorkItem;
 import com.cuyum.jbpm.client.kie.serialization.jaxb.impl.task.JaxbContentResponse;
 import com.cuyum.jbpm.client.kie.serialization.jaxb.impl.task.JaxbTaskContentResponse;
 import com.cuyum.jbpm.client.kie.serialization.jaxb.impl.task.JaxbTaskResponse;

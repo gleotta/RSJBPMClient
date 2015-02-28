@@ -16,7 +16,7 @@
 
 package com.cuyum.jbpm.client.kie.api;
 
-import java.util.EventListener;
+
 
 /**
  * A process instance represents one specific instance of a process

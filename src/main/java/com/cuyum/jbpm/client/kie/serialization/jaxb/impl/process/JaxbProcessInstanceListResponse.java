@@ -11,8 +11,8 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
-import com.cuyum.jbpm.client.artifacts.ProcessInstance;
 import com.cuyum.jbpm.client.kie.api.Command;
+import com.cuyum.jbpm.client.kie.api.ProcessInstance;
 import com.cuyum.jbpm.client.kie.serialization.jaxb.impl.AbstractJaxbCommandResponse;
 
 @XmlRootElement(name="process-instance-list")
