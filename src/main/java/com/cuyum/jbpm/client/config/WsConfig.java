@@ -2,10 +2,6 @@ package com.cuyum.jbpm.client.config;
 
 import java.util.Map;
 
-import javax.ws.rs.core.MediaType;
-
-import com.cuyum.jbpm.client.artifacts.responses.BRMSClientWSResponse;
-
 
 
 /**

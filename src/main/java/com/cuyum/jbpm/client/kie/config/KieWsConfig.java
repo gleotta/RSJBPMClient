@@ -2,16 +2,15 @@ package com.cuyum.jbpm.client.kie.config;
 
 import static com.cuyum.jbpm.client.config.WsConfig.WsMethod.GET;
 import static com.cuyum.jbpm.client.config.WsConfig.WsMethod.POST;
-import static com.cuyum.jbpm.client.kie.config.KieUrls.QUERY_TASKS_WS_URL;
 import static com.cuyum.jbpm.client.kie.config.KieUrls.ASSIGN_TASK_WS_URL;
 import static com.cuyum.jbpm.client.kie.config.KieUrls.CREATE_PROCESS_INSTANCE_WS_URL;
 import static com.cuyum.jbpm.client.kie.config.KieUrls.DATASET_WS_URL;
 import static com.cuyum.jbpm.client.kie.config.KieUrls.PROCESS_INSTANCES_WS_URL;
+import static com.cuyum.jbpm.client.kie.config.KieUrls.PROCESS_INSTANCE_WS_URL;
 import static com.cuyum.jbpm.client.kie.config.KieUrls.RELEASE_TASK_WS_URL;
 import static com.cuyum.jbpm.client.kie.config.KieUrls.SERVER_STATUS_WS_URL;
 import static com.cuyum.jbpm.client.kie.config.KieUrls.TRANSITION_TOKEN_WS_URL;
 import static com.cuyum.jbpm.client.kie.config.KieUrls.UPDATE_TASK_WS_URL;
-import static com.cuyum.jbpm.client.kie.config.KieUrls.PROCESS_INSTANCE_WS_URL;
 
 import java.util.Map;
 import java.util.Set;
