@@ -17,17 +17,18 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.cuyum.jbpm.client.BRMSClient;
 import com.cuyum.jbpm.client.artifacts.HumanTask;
 import com.cuyum.jbpm.client.artifacts.ProcessInstanceToken;
 import com.cuyum.jbpm.client.artifacts.responses.GETAssignedTasksResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETDatasetInstanceResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETParticipationsTasksResponse;
+import com.cuyum.jbpm.client.artifacts.responses.GETProcessDefinitionsResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETRoleCheckResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETServerStatusResponse;
 import com.cuyum.jbpm.client.artifacts.responses.GETUnassignedTasksResponse;
 import com.cuyum.jbpm.client.artifacts.responses.POSTCreateInstanceResponse;
 import com.cuyum.jbpm.client.artifacts.responses.POSTNewInstanceResponse;
+import com.cuyum.jbpm.client.artifacts.responses.POSTSignalTokenResponse;
 import com.cuyum.jbpm.client.kie.KieRestClient;
 
 
@@ -42,12 +43,12 @@ public class KieRestClientTest {
 //	private static final String USERNAME = "admin";
 //	private static final String PASSWORD = "admin";
 	
-	private static final String BRMS_ADRESS = "172.16.6.114";
-	private static final String BRMS_PORT = "8080";
-	private static final String USERNAME = "iarancibias";
-	private static final String PASSWORD = "1234";
+	private static final String BRMS_ADRESS = "http://162.243.12.101:8080/business-central";
+	private static final String DEPLOYMENT_ID = "cl.isl.procesos:spm-isl:1.0";
+	private static final String USERNAME = "bpmsAdmin";
+	private static final String PASSWORD = "German76$";
 	
-	private BRMSClient client;
+	private KieRestClient client;
 
 	private Logger log = Logger.getLogger(KieRestClientTest.class);
 	/**
@@ -56,7 +57,7 @@ public class KieRestClientTest {
 	@Before
 	public void setUp() throws Exception {
 		log.info("Entro al setup");
-		client = new KieRestClient(BRMS_ADRESS, BRMS_PORT);
+		client = new KieRestClient(BRMS_ADRESS, DEPLOYMENT_ID);
 	}
 
 	/**
@@ -74,14 +75,50 @@ public class KieRestClientTest {
 	public void testGetServerStatus() {
 		try {
 
+		
+			client.login(USERNAME, PASSWORD);
 			GETServerStatusResponse status = client.getServerStatus();
 			assertNotNull(status);
 			
+			log.info("Server Status: "+status);
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+		
+	}
+	
+	/**
+	 * Test method for {@link com.cuyum.jbpm.client.BRMSClientImpl#getServerStatus()}.
+	 */
+	@Test
+	public void testPOSTSignalToken() {
+		try {
+
+		
 			client.login(USERNAME, PASSWORD);
-			status = client.getServerStatus();
+			POSTSignalTokenResponse status = client.signalToken("1", "pepe", "pepa");
 			assertNotNull(status);
 			
-			log.info("Server Status: "+client.getServerStatus());
+			log.info("Server Status: "+status);
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+		
+	}
+	
+	/**
+	 * Test method for {@link com.cuyum.jbpm.client.BRMSClientImpl#getServerStatus()}.
+	 */
+	@Test
+	public void testGetProcessDefinitions() {
+		try {
+
+		
+			client.login(USERNAME, PASSWORD);
+			GETProcessDefinitionsResponse pids = client.getProcessDefinitions();
+			assertNotNull(pids);
+			
+			log.info("Server Status: "+pids);
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
@@ -91,7 +128,7 @@ public class KieRestClientTest {
 	/**
 	 * Test method for {@link com.cuyum.jbpm.client.BRMSClientImpl#getUnassignedTasks(java.lang.String)}.
 	 */
-	@Test
+	//@Test
 	public void testGetUnassignedTasks() {
 		try {
 			
@@ -153,7 +190,7 @@ public class KieRestClientTest {
 	/**
 	 * Test method for {@link com.cuyum.jbpm.client.BRMSClientImpl#getUnassignedTasks(java.lang.String)}.
 	 */
-	@Test
+	//@Test
 	public void testGetParticipationsTasks() {
 		try {
 			
@@ -182,7 +219,7 @@ public class KieRestClientTest {
 	/**
 	 * Test method for {@link com.cuyum.jbpm.client.BRMSClientImpl#getAssignedTasks(java.lang.String)}.
 	 */
-	@Test
+	//@Test
 	public void testGetAssignedTasks() {
 		try {
 			
@@ -209,7 +246,7 @@ public class KieRestClientTest {
 		
 	}
 	
-	@Test
+	//@Test
 	public void testGetDatasetInstance() {
 		try {
 			
@@ -269,7 +306,7 @@ public class KieRestClientTest {
 	/**
 	 * Test method for {@link com.cuyum.jbpm.client.BRMSClientImpl#login(java.lang.String, java.lang.String)}.
 	 */
-	@Test
+	//@Test
 	public void testLogin() {
 		try {
 			assertTrue(!client.isLogged());
@@ -284,7 +321,7 @@ public class KieRestClientTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void createInstance() {
 		try {
 			assertTrue(!client.isLogged());
@@ -309,7 +346,7 @@ public class KieRestClientTest {
 	}
 	
 	
-	@Test
+	//@Test
 	public void testNewInstance() {
 		try {
 			assertTrue(!client.isLogged());
@@ -342,7 +379,7 @@ public class KieRestClientTest {
 	/**
 	 * Test method for {@link com.cuyum.jbpm.client.BRMSClientImpl#logout()}.
 	 */
-	@Test
+	//@Test
 	public void testLogout() {
 		try {
 			
@@ -359,7 +396,7 @@ public class KieRestClientTest {
 	}
 	
 	
-	@Test
+	//@Test
 	public void testUserRoles() {
 		try {
 			List<String> roles = new ArrayList<String>();
